@@ -115,6 +115,30 @@ func (program Program) GetAttribLocation(name string) AttribLocation {
 	return AttribLocation(C.glGetAttribLocation(C.GLuint(program), cname))
 }
 
+func (program Program) GetActiveAttrib(index AttribLocation) (string, GLenum, int) {
+	var written C.GLsizei
+	var size C.GLint
+	var tp C.GLenum
+	//Allocate a buffer of 64 characters to write variable names to
+	var buffer *C.GLchar = (*C.GLchar)(C.malloc(64))
+	defer freeString(buffer)
+
+	C.glGetActiveAttrib(C.GLuint(program), C.GLuint(index), C.GLsizei(128), &written, &size, &tp, buffer)
+	return C.GoStringN((*C.char)(buffer), C.int(written)), GLenum(tp), int(size)
+}
+
+func (program Program) GetActiveUniform(index UniformLocation) (string, GLenum, int) {
+	var written C.GLsizei
+	var size C.GLint
+	var tp C.GLenum
+	//Allocate a buffer of 64 characters to write variable names to
+	var buffer *C.GLchar = (*C.GLchar)(C.malloc(64))
+	defer freeString(buffer)
+
+	C.glGetActiveUniform(C.GLuint(program), C.GLuint(index), C.GLsizei(128), &written, &size, &tp, buffer)
+	return C.GoStringN((*C.char)(buffer), C.int(written)), GLenum(tp), int(size)
+}
+
 func (program Program) BindAttribLocation(index AttribLocation, name string) {
 
 	cname := glString(name)
